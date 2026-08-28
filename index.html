@@ -627,10 +627,10 @@
         </table>
       </div>
       <div class="legend-note">
-        <span><span class="legend-dot" style="background:var(--green);"></span>&ge; 50% avance</span>
-        <span><span class="legend-dot" style="background:var(--amber);"></span>30% – 49.9%</span>
-        <span><span class="legend-dot" style="background:var(--red);"></span>&lt; 30%</span>
-        <span>(referencial, según el corte más reciente)</span>
+        <span><span class="legend-dot" style="background:var(--green);"></span>&ge; 90% del avance general</span>
+        <span><span class="legend-dot" style="background:var(--amber);"></span>75% – 89.9% del avance general</span>
+        <span><span class="legend-dot" style="background:var(--red);"></span>&lt; 75% del avance general</span>
+        <span>(comparado contra el % avance objetivo de Total Regulares)</span>
       </div>
     </div>
 
@@ -711,6 +711,16 @@ function badge(v){
 }
 function badgeAvance(v){
   return '<span class="pct-badge ' + pctClassAvance(v) + '">' + pct(v) + '</span>';
+}
+function pctClassRelative(v, benchmark){
+  if(v === null || v === undefined || isNaN(v) || !benchmark) return '';
+  const ratio = v / benchmark;
+  if(ratio >= 0.90) return 'pct-good';
+  if(ratio >= 0.75) return 'pct-mid';
+  return 'pct-bad';
+}
+function badgeRelative(v, benchmark){
+  return '<span class="pct-badge ' + pctClassRelative(v, benchmark) + '">' + pct(v) + '</span>';
 }
 function money(v){
   if(v === null || v === undefined || isNaN(v)) return '—';
@@ -1516,6 +1526,8 @@ document.querySelectorAll('.view-toggle').forEach(toggle => {
 (function(){
   const OFFICES = DATA.segmeta.offices;
   const TOTALS = DATA.segmeta.totals;
+  const BENCH_OBJ = TOTALS['TOTAL REGULARES'].avance_objetivo;
+  const BENCH_FACT = TOTALS['TOTAL REGULARES'].avance_fact_anterior;
   let activeZone = 'ALL';
   let sortCol = null, sortDir = 1;
 
@@ -1688,8 +1700,8 @@ document.querySelectorAll('.view-toggle').forEach(toggle => {
         '<td class="num-cell">' + money(o.objetivo) + '</td>' +
         '<td class="num-cell">' + money(o.facturacion_anterior) + '</td>' +
         '<td class="num-cell">' + money(o.cobro_actual) + '</td>' +
-        '<td>' + badgeAvance(o.avance_objetivo) + '</td>' +
-        '<td>' + badgeAvance(o.avance_fact_anterior) + '</td>' +
+        '<td>' + badgeRelative(o.avance_objetivo, BENCH_OBJ) + '</td>' +
+        '<td>' + badgeRelative(o.avance_fact_anterior, BENCH_FACT) + '</td>' +
         '<td class="num-cell">' + money(o.pendiente_mes) + '</td>' +
         '<td>' + (o.encargado || '—') + '</td>' +
         '</tr>';
