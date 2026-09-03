@@ -1081,7 +1081,7 @@ document.querySelectorAll('.view-toggle').forEach(toggle => {
     chartMonths.forEach(m => head += '<th>' + monthShortLabel(m) + '</th>');
     head += '</tr></thead>';
     let body = '<tbody><tr><td style="text-align:left;font-weight:700;">' + series.label + '</td>';
-    values.forEach(v => body += '<td>' + v.toFixed(6) + '%</td>');
+    values.forEach(v => body += '<td>' + v.toFixed(2) + '%</td>');
     body += '</tr></tbody>';
     table.innerHTML = head + body;
   }
