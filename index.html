@@ -1011,7 +1011,8 @@ document.querySelectorAll('.view-toggle').forEach(toggle => {
     // Chart displays from Agosto 2025 onward for a cleaner year-over-year view;
     // KPI calculations (variación, promedio 12 meses) use the full series independently and are unaffected.
     const chartMonths = MONTHS.slice(refIdx);
-    const values = series.data.slice(refIdx).map(v => +(v*100).toFixed(2));
+    const rawValues = series.data.slice(refIdx).map(v => v*100);
+    const values = rawValues.map(v => +v.toFixed(2));
     const trend = linearTrend(values).map(v => +v.toFixed(2));
     const labels = chartMonths.map(monthShortLabel);
 
@@ -1071,7 +1072,7 @@ document.querySelectorAll('.view-toggle').forEach(toggle => {
       }
     });
 
-    renderPrincipalTable(series, chartMonths, values);
+    renderPrincipalTable(series, chartMonths, rawValues);
   }
 
   function renderPrincipalTable(series, chartMonths, values){
@@ -1080,7 +1081,7 @@ document.querySelectorAll('.view-toggle').forEach(toggle => {
     chartMonths.forEach(m => head += '<th>' + monthShortLabel(m) + '</th>');
     head += '</tr></thead>';
     let body = '<tbody><tr><td style="text-align:left;font-weight:700;">' + series.label + '</td>';
-    values.forEach(v => body += '<td>' + v.toFixed(2) + '%</td>');
+    values.forEach(v => body += '<td>' + v.toFixed(6) + '%</td>');
     body += '</tr></tbody>';
     table.innerHTML = head + body;
   }
@@ -1127,7 +1128,7 @@ document.querySelectorAll('.view-toggle').forEach(toggle => {
       const tbody = document.getElementById('empTableBody');
       tbody.innerHTML = rows.map(r => {
         let cells = '<td class="col-name">' + r.name + '</td>';
-        r.vals.forEach(v => cells += '<td class="col-month">' + pct(v) + '</td>');
+        r.vals.forEach(v => cells += '<td class="col-month">' + pct(v, 2) + '</td>');
         cells += '<td class="col-spark">' + sparkline(r.vals) + '</td>';
         return '<tr>' + cells + '</tr>';
       }).join('') || '<tr><td colspan="' + (DATA.poligono.months.length+2) + '" style="text-align:center;padding:30px;color:var(--ink-soft);">Sin resultados</td></tr>';
@@ -1135,7 +1136,7 @@ document.querySelectorAll('.view-toggle').forEach(toggle => {
       const foot = document.getElementById('empTableFootRow');
       const totalRegulares = DATA.poligono.totals['TOTAL REGULARES'];
       let footCells = '<td class="col-name">TOTAL REGULARES</td>';
-      totalRegulares.forEach(v => footCells += '<td class="col-month">' + pct(v) + '</td>');
+      totalRegulares.forEach(v => footCells += '<td class="col-month">' + pct(v, 2) + '</td>');
       footCells += '<td class="col-spark">' + sparkline(totalRegulares) + '</td>';
       foot.innerHTML = footCells;
 
