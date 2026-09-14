@@ -300,7 +300,7 @@
   table.zona-table tbody tr:nth-child(even) td.zone-val{background:#F2F4F7;}
   table.zona-table tbody tr:nth-child(even) td.zone-name{background:#E4E8EE;}
 
-  /* ===== Carousel (Ranking de Recuperación) ===== */
+  /* ===== Carousel (Ranking de Recuperación) — Propuesta A: anillo de progreso ===== */
   .carousel-wrap{
     display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px;
   }
@@ -310,34 +310,41 @@
   }
   .carousel-track::-webkit-scrollbar{height:6px;}
   .rank-card{
-    scroll-snap-align:start; flex:0 0 auto; width:190px;
-    background:linear-gradient(160deg, var(--primary-deep) 0%, var(--primary) 100%);
-    border-radius:16px; padding:18px 16px; color:#fff; position:relative; overflow:hidden;
+    scroll-snap-align:start; flex:0 0 auto; width:200px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:0 16px 18px; color:var(--ink); position:relative; overflow:hidden;
+    box-shadow:0 2px 10px rgba(18,35,58,0.06);
   }
-  .rank-card::after{
-    content:""; position:absolute; inset:0;
-    background:radial-gradient(circle at 85% -10%, rgba(237,125,49,0.30) 0%, transparent 45%);
-    pointer-events:none;
+  .rank-card .rank-accent-bar{
+    height:5px; margin:0 -16px 16px; width:calc(100% + 32px);
+  }
+  .rank-card .rank-top{
+    position:relative; margin-bottom:12px; padding-top:4px;
   }
   .rank-card .rank-badge{
-    position:relative; z-index:1; display:inline-flex; align-items:center; justify-content:center;
-    width:32px; height:32px; border-radius:50%; background:var(--accent); color:#3A2400;
-    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15.5px; margin-bottom:10px;
+    position:absolute; top:0; left:0; display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:50%; background:var(--primary); color:#fff;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12.5px;
   }
   .rank-card .rank-zone{
-    position:relative; z-index:1; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; margin-bottom:14px;
+    text-align:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14.5px; color:var(--ink);
   }
-  .rank-card .rank-pct{
-    position:relative; z-index:1; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:27px; line-height:1;
+  .rank-card .ring-wrap{
+    position:relative; display:flex; justify-content:center; margin:4px 0 14px;
   }
-  .rank-card .rank-pct-label{
-    position:relative; z-index:1; font-size:9.5px; text-transform:uppercase; letter-spacing:.04em; color:#C8D6E5; margin:4px 0 14px;
+  .rank-card .ring-pct{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center;
   }
+  .rank-card .ring-pct b{display:block; font-family:'Space Grotesk',sans-serif; font-size:16.5px; font-weight:700; color:var(--ink); white-space:nowrap;}
+  .rank-card .ring-pct span{font-size:8.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em;}
   .rank-card .rank-row{
-    position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#DCE6EF;
-    padding:6px 0; border-top:1px solid rgba(255,255,255,0.14); gap:6px;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 0; border-top:1px solid var(--border); gap:6px;
   }
-  .rank-card .rank-row b{color:#fff; font-family:'IBM Plex Mono',monospace; font-size:13.5px; font-weight:700;}
+  .rank-card .rank-row span{
+    font-size:11px; font-weight:700; color:var(--primary-2);
+  }
+  .rank-card .rank-row b{color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:13.5px; font-weight:700;}
   .carousel-nav{
     flex-shrink:0; width:36px; height:36px; border-radius:50%; border:1px solid var(--border);
     background:var(--surface); color:var(--ink); font-size:20px; cursor:pointer; line-height:1;
@@ -1970,21 +1977,37 @@ PAGE 3 — SEG META POLÍGONO 2026
   const dotsEl = document.getElementById('rankCarouselDots');
   let zoneRanking = [];
 
+  function ringTierColor(v){
+    const p = v * 100;
+    if(p < 70) return '#D2493C';
+    if(p < 100) return '#D98A1F';
+    return '#2E9E6D';
+  }
+
   function renderCarousel(){
     zoneRanking = ZONE_ORDER.map(z => ({ z, ...TOTALS[z] }));
     zoneRanking.sort((a,b) => b.avance - a.avance);
 
-    track.innerHTML = zoneRanking.map((r, i) => (
-      '<div class="rank-card" data-zone="' + r.z + '">' +
-      '<div class="rank-badge">#' + (i+1) + '</div>' +
-      '<div class="rank-zone">' + ZONE_LABEL[r.z] + '</div>' +
-      '<div class="rank-pct">' + pct(r.avance) + '</div>' +
-      '<div class="rank-pct-label">avance de recuperación</div>' +
+    const R = 38, SZ = 96, CX = SZ/2, C = 2 * Math.PI * R;
+    track.innerHTML = zoneRanking.map((r, i) => {
+      const color = ringTierColor(r.avance);
+      const dash = C * Math.min(r.avance, 1);
+      return '<div class="rank-card" data-zone="' + r.z + '">' +
+      '<div class="rank-accent-bar" style="background:' + color + ';"></div>' +
+      '<div class="rank-top"><div class="rank-badge">#' + (i+1) + '</div><div class="rank-zone">' + ZONE_LABEL[r.z] + '</div></div>' +
+      '<div class="ring-wrap">' +
+        '<svg width="' + SZ + '" height="' + SZ + '" viewBox="0 0 ' + SZ + ' ' + SZ + '">' +
+          '<circle cx="' + CX + '" cy="' + CX + '" r="' + R + '" fill="none" stroke="#E9EBEF" stroke-width="7"/>' +
+          '<circle cx="' + CX + '" cy="' + CX + '" r="' + R + '" fill="none" stroke="' + color + '" stroke-width="7" ' +
+            'stroke-dasharray="' + dash.toFixed(1) + ' ' + C.toFixed(1) + '" stroke-linecap="round" transform="rotate(-90 ' + CX + ' ' + CX + ')"/>' +
+        '</svg>' +
+        '<div class="ring-pct"><b>' + pct(r.avance) + '</b><span>avance</span></div>' +
+      '</div>' +
       '<div class="rank-row"><span>Meta</span><b>' + moneyMM(r.meta) + '</b></div>' +
       '<div class="rank-row"><span>Recuperado</span><b>' + moneyMM(r.recuperacion) + '</b></div>' +
       '<div class="rank-row"><span>Contratos</span><b>' + (r.contratos || 0).toLocaleString('es-DO') + '</b></div>' +
-      '</div>'
-    )).join('');
+      '</div>';
+    }).join('');
 
     dotsEl.innerHTML = zoneRanking.map((r, i) => '<span class="dot' + (i===0?' active':'') + '" data-idx="' + i + '"></span>').join('');
 
