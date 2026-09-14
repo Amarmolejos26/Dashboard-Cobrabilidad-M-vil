@@ -426,7 +426,7 @@
       <div class="header-meta">
         <div class="meta-pill">Corte de datos<b id="metaCorte">—</b></div>
         <div class="meta-pill">Oficinas<b id="metaOficinas">—</b></div>
-        <div class="meta-pill" id="metaCarterasPill">Carteras Grandes Clientes<b id="metaCarteras">—</b></div>
+        <div class="meta-pill" id="metaCarterasPill" style="display:none;">Carteras Grandes Clientes<b id="metaCarteras">—</b></div>
         <div class="meta-pill">Zonas<b id="metaZonas">—</b></div>
       </div>
     </div>
@@ -937,7 +937,7 @@ document.getElementById('pageNav').addEventListener('click', (e) => {
   ['empresa','poligono','segmeta','ranking'].forEach(p => {
     document.getElementById('controlRow-' + p).style.display = (p === page) ? 'flex' : 'none';
   });
-  document.getElementById('metaCarterasPill').style.display = (page === 'ranking') ? 'none' : '';
+  document.getElementById('metaCarterasPill').style.display = (page === 'ranking' || page === 'segmeta') ? 'none' : '';
   if(page === 'empresa' && typeof window.resetEmpresaPage === 'function') window.resetEmpresaPage();
   if(page === 'poligono' && typeof window.resetPoligonoPage === 'function') window.resetPoligonoPage();
   if(page === 'segmeta' && typeof window.resetSegMetaPage === 'function') window.resetSegMetaPage();
