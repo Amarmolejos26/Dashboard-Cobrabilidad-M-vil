@@ -427,14 +427,14 @@
 
   <div class="page-nav-row">
     <div class="page-nav" id="pageNav">
-      <button class="page-nav-btn active" data-page="empresa">Cobrabilidad Empresa</button>
-      <button class="page-nav-btn" data-page="poligono">Cobrabilidad por Oficinas y Puntos Expresos</button>
-      <button class="page-nav-btn" data-page="segmeta">Seg. Meta OOCC / PPEE 2026</button>
+      <button class="page-nav-btn active" data-page="segmeta">Seg. Meta OOCC / PPEE 2026</button>
       <button class="page-nav-btn" data-page="ranking">Ranking de Recuperación de Deuda</button>
+      <button class="page-nav-btn" data-page="empresa">Cobrabilidad Empresa</button>
+      <button class="page-nav-btn" data-page="poligono">Cobrabilidad por Oficinas y Puntos Expresos</button>
     </div>
   </div>
 
-  <div class="control-row" id="controlRow-empresa">
+  <div class="control-row" id="controlRow-empresa" style="display:none;">
     <div class="zone-filter" id="empCategoryFilter"></div>
     <div class="month-select-wrap">
       <label for="empMonthSelect">Mes de referencia</label>
@@ -448,7 +448,7 @@
       <select id="poliMonthSelect"></select>
     </div>
   </div>
-  <div class="control-row" id="controlRow-segmeta" style="display:none;">
+  <div class="control-row" id="controlRow-segmeta">
     <div class="zone-filter" id="segZoneFilter"></div>
     <div class="month-select-wrap">
       <label for="segMonthSelect">Mes de meta</label>
@@ -464,7 +464,7 @@
 <main>
 
   <!-- ============ PAGE 1: COBRABILIDAD EMPRESA ============ -->
-  <section id="page-empresa" class="page active">
+  <section id="page-empresa" class="page">
     <section class="grid g-kpi-5" id="empKpiGrid">
       <div class="card kpi c-accent">
         <div class="lbl" id="empKpiEmpresaLabel">Cobrabilidad Móvil Empresa</div>
@@ -636,7 +636,7 @@
   </section>
 
   <!-- ============ PAGE 3: SEG. META OOCC / PPEE AGOSTO 2026 ============ -->
-  <section id="page-segmeta" class="page">
+  <section id="page-segmeta" class="page active">
     <section class="grid g-kpi">
       <div class="card kpi seg-kpi c-accent">
         <div class="lbl" id="segKpiObjLabel">Objetivo</div>
