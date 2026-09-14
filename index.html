@@ -302,11 +302,11 @@
 
   /* ===== Carousel (Ranking de Recuperación) ===== */
   .carousel-wrap{
-    display:flex; align-items:center; gap:10px; margin-top:16px;
+    display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px;
   }
   .carousel-track{
     display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth;
-    padding:4px 2px 10px; flex:1;
+    padding:4px 2px 10px; flex:0 1 auto; justify-content:center; margin:0 auto;
   }
   .carousel-track::-webkit-scrollbar{height:6px;}
   .rank-card{
