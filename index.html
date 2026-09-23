@@ -209,6 +209,16 @@
   table.alert-table tbody tr.row-clickable .mail-icon:hover{color:var(--accent-dark); text-decoration:none;}
   table.alert-table tbody tr.row-clickable:hover .mail-icon{color:var(--accent-dark);}
 
+  /* ===== Aviso flotante (toast) para copiar correo al portapapeles ===== */
+  .global-toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px);
+    background:var(--primary-deep); color:#fff; padding:12px 20px; border-radius:10px;
+    font-size:13px; font-weight:600; box-shadow:var(--shadow); opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease; z-index:999; max-width:90vw; text-align:center;
+    line-height:1.4;
+  }
+  .global-toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
   /* ===== Success card: Oficinas que Cumplieron su Meta ===== */
   .success-card{border-top:3px solid var(--green); margin-top:18px;}
   .success-head{display:flex; align-items:flex-start; gap:12px;}
@@ -1041,21 +1051,95 @@ function officeEmail(oficina){
   const c = officeCode(oficina);
   return (c && EMAILS_BY_CODE[c]) ? EMAILS_BY_CODE[c] : null;
 }
+/* ===== Identificación de género por nombre (para el saludo del correo) ===== */
+const GENDER_BY_FIRST_NAME = {
+  'ALEXANDRA':'F','ANA':'F','ANDRES':'M','ANGEL':'M','BERLYN':'F','CARLOS':'M','CARMEN':'F',
+  'CLAUDIA':'F','CLAURIANA':'F','DACEYA':'F','DALILA':'F','DANIA':'F','DELFINA':'F','DENNY':'F',
+  'DESIREE':'F','DORIAN':'M','ESMERLIN':'M','FERNANDO':'M','GIANNY':'F','GINA':'F','JEANNETTE':'F',
+  'JEOVANNY':'F','JOSE':'M','JUAN':'M','KEILA':'F','KELVIN':'M','KILVIO':'M','LICELOT':'F',
+  'LINCER':'M','LUCIA':'F','LUCRECIA':'F','LUCRECIO':'M','LUVIT':'F','MABEL':'F','MARCIA':'F',
+  'MAYBEL':'F','MELISSA':'F','NAIROBI':'F','NAOMI':'F','NELLY':'F','NEURIS':'F','OLGUIANNY':'F',
+  'PABLO':'M','RAMONA':'F','REGINA':'F','ROSALBA':'F','RUBIELY':'F','RUDYLANI':'F','SANEIDI':'F',
+  'SANTA':'F','SOLANYITH':'F','TOMAS':'M','WAGNER':'M','YACAIRA':'F','YADYS':'F','YAJAIRA':'F',
+  'YASSIRIS':'F','YEFERSON':'M','YENNIFER':'F','YENNY':'F','YIMARLI':'F'
+};
+function stripAccents(s){
+  return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+function guessGender(fullName){
+  const first = stripAccents(fullName).trim().split(/\s+/)[0].toUpperCase();
+  if(!first) return 'F';
+  if(GENDER_BY_FIRST_NAME[first]) return GENDER_BY_FIRST_NAME[first];
+  // heurística de respaldo para nombres fuera del diccionario
+  if(/O$/.test(first)) return 'M';
+  if(/A$/.test(first)) return 'F';
+  return 'F';
+}
+function saludoEncargado(encargado){
+  if(!encargado) return 'Buen día,';
+  const gender = guessGender(encargado);
+  return 'Estimad' + (gender === 'M' ? 'o' : 'a') + ' ' + encargado + ',';
+}
 function mailtoRezagada(oficina, encargado, bodyLines){
   const email = officeEmail(oficina);
   if(!email) return null;
   const subject = 'Seguimiento de desempeño — Oficina ' + oficina;
-  const saludo = 'Estimado/a ' + (encargado || 'encargado/a') + ',';
-  const body = [saludo, '', ...bodyLines, '', 'Favor revisar y darle seguimiento a la brevedad.', '', 'Saludos,', 'Control de Gestión Comercial'].join('\n');
-  return 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  const saludo = saludoEncargado(encargado);
+  const bodyText = [saludo, '', ...bodyLines, '', 'Se requiere reforzar el seguimiento a la cartera de clientes de esta oficina, con el fin de cerrar la brecha frente al promedio general y alcanzar la meta establecida.', '', 'Saludos,'].join('\n');
+  const url = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
+  const copyText = 'Para: ' + email + '\nAsunto: ' + subject + '\n\n' + bodyText;
+  return { url, copyText };
+}
+
+/* ===== Portapapeles y aviso visual (funciona aunque el navegador bloquee mailto) ===== */
+function b64EncodeUnicode(str){
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode('0x' + p1)));
+}
+function b64DecodeUnicode(str){
+  return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+}
+function copyToClipboard(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(() => legacyCopy(text));
+  } else {
+    legacyCopy(text);
+  }
+}
+function legacyCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta);
+}
+function showToast(msg){
+  let toast = document.getElementById('globalToast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'globalToast';
+    toast.className = 'global-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => { toast.classList.remove('show'); }, 4000);
 }
 function bindMailtoRows(tbody){
-  // El enlace mailto es un <a> real y visible (el ícono ✉) para que el
-  // navegador lo trate como un clic genuino del usuario — muchos navegadores
-  // bloquean en silencio el intento de "abrir programa externo" cuando se
-  // dispara desde un elemento oculto o creado por código.
+  // Cada fila copia los datos de contacto al portapapeles (funciona siempre,
+  // sin depender de permisos del navegador) y de paso intenta abrir el
+  // cliente de correo vía el enlace mailto (el ícono ✉), que solo funcionará
+  // si el navegador/organización lo permite.
   [...tbody.querySelectorAll('tr[data-mailto]')].forEach(tr => {
     tr.addEventListener('click', (e) => {
+      if(tr.dataset.copyB64){
+        copyToClipboard(b64DecodeUnicode(tr.dataset.copyB64));
+        showToast('✓ Correo, asunto y mensaje copiados al portapapeles. Abre un correo nuevo en Outlook y pega (Ctrl+V).');
+      }
       if(e.target.closest('a.mail-icon')) return; // el <a> ya maneja su propio clic nativamente
       const a = tr.querySelector('a.mail-icon');
       if(a) a.click();
@@ -2016,12 +2100,12 @@ PAGE 3 — SEG META POLÍGONO 2026
     const oficinasBody = document.getElementById('segAlertOficinasBody');
     oficinasBody.innerHTML = oficinasRanked.map((o, i) => {
       const link = mailtoRezagada(o.oficina, o.encargado, [
-        'Según el corte de ' + meta.label + ', la oficina ' + o.oficina + ' presenta un % de avance de objetivo de ' + pct(o.avance_objetivo, 2) + ',',
+        'De acuerdo al corte de ' + meta.label + ', la oficina ' + o.oficina + ' presenta un % de avance de objetivo de ' + pct(o.avance_objetivo, 2) + ',',
         'lo cual está ' + Math.abs(o.gapPP).toFixed(2) + ' puntos porcentuales por debajo del promedio general (Total Regulares: ' + pct(bench, 2) + ').'
       ]);
-      return '<tr' + (link ? ' class="row-clickable" data-mailto="' + link + '" title="Clic para enviar correo al encargado"' : '') + '>' +
+      return '<tr' + (link ? ' class="row-clickable" data-mailto="' + link.url + '" data-copy-b64="' + b64EncodeUnicode(link.copyText) + '" title="Clic para copiar correo al encargado"' : '') + '>' +
       '<td><span class="alert-rank">' + (i+1) + '</span></td>' +
-      '<td>' + o.oficina + (link ? ' <a href="' + link + '" class="mail-icon" title="Enviar correo al encargado">✉</a>' : '') + '</td>' +
+      '<td>' + o.oficina + (link ? ' <a href="' + link.url + '" class="mail-icon" title="Enviar correo al encargado">✉</a>' : '') + '</td>' +
       '<td><span class="zone-tag">' + ZONE_LABEL[o.zona] + '</span></td>' +
       '<td>' + pct(o.avance_objetivo, 2) + '</td>' +
       '<td class="alert-gap ' + gapClass(o.gapPP) + '">' + o.gapPP.toFixed(2) + ' pp</td>' +
@@ -2508,12 +2592,12 @@ PAGE 3 — SEG META POLÍGONO 2026
     const oficinasBody = document.getElementById('rankAlertOficinasBody');
     oficinasBody.innerHTML = oficinasRanked.map((o, i) => {
       const link = mailtoRezagada(o.oficina, o.encargado, [
-        'Según el corte de ' + CORTE + ', la oficina ' + o.oficina + ' presenta un % de avance de recuperación de ' + pct(o.avance, 2) + ',',
+        'De acuerdo al corte de ' + CORTE + ', la oficina ' + o.oficina + ' presenta un % de avance de recuperación de ' + pct(o.avance, 2) + ',',
         'lo cual está ' + Math.abs(o.gapPP).toFixed(2) + ' puntos porcentuales por debajo del promedio general (Total Regulares: ' + pct(BENCH, 2) + ').'
       ]);
-      return '<tr' + (link ? ' class="row-clickable" data-mailto="' + link + '" title="Clic para enviar correo al encargado"' : '') + '>' +
+      return '<tr' + (link ? ' class="row-clickable" data-mailto="' + link.url + '" data-copy-b64="' + b64EncodeUnicode(link.copyText) + '" title="Clic para copiar correo al encargado"' : '') + '>' +
       '<td><span class="alert-rank">' + (i+1) + '</span></td>' +
-      '<td>' + o.oficina + (link ? ' <a href="' + link + '" class="mail-icon" title="Enviar correo al encargado">✉</a>' : '') + '</td>' +
+      '<td>' + o.oficina + (link ? ' <a href="' + link.url + '" class="mail-icon" title="Enviar correo al encargado">✉</a>' : '') + '</td>' +
       '<td><span class="zone-tag">' + ZONE_LABEL[o.zona] + '</span></td>' +
       '<td>' + pct(o.avance, 2) + '</td>' +
       '<td class="alert-gap ' + gapClassRank(o.gapPP) + '">' + o.gapPP.toFixed(2) + ' pp</td>' +
