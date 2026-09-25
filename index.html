@@ -392,6 +392,9 @@
   th.col-name, td.col-name{position:sticky; left:0; z-index:1; background:var(--primary); width:190px; max-width:190px; white-space:normal;}
   #segGCTable td:nth-child(8), #segGCTable th:nth-child(8){width:30%; white-space:normal; font-size:12.5px; line-height:1.5; text-align:center;}
   #segTable td:nth-child(9){text-align:center;}
+  #segGCExecTable td:nth-child(2), #segGCExecTable th:nth-child(2){white-space:normal; font-size:12.5px; line-height:1.5;}
+  #segGCExecTable td:nth-child(3), #segGCExecTable th:nth-child(3){text-align:center; font-family:'IBM Plex Mono',monospace; font-weight:600;}
+  #segGCExecTable tfoot td{font-weight:700; color:var(--primary); background:var(--primary-light); border-top:1px solid var(--border);}
   td.col-name{background:var(--surface); font-weight:600; z-index:1; text-align:left;}
   tbody tr:nth-child(even) td.col-name{background:#FAFBFC;}
   tbody tr:hover td.col-name{background:var(--primary-light);}
@@ -894,9 +897,14 @@
     </div>
 
     <div class="card" id="segGCCard" style="display:none; margin-top:18px;">
-      <h3 id="segGCTitle">Cartera GGCC</h3>
-      <p class="sub">Objetivo, facturación, cobro y avance de meta por cartera de Grandes Clientes.</p>
-      <div class="table-scroll no-border">
+      <div class="table-controls" style="justify-content:space-between; margin-bottom:2px;">
+        <div>
+          <h3 id="segGCTitle" style="margin-bottom:2px;">Cartera GGCC</h3>
+          <p class="sub" style="margin:0;">Objetivo, facturación, cobro y avance de meta por cartera de Grandes Clientes.</p>
+        </div>
+        <button type="button" class="expand-toggle-btn" id="segGCExecToggleBtn">Objetivo por Ejecutivo</button>
+      </div>
+      <div class="table-scroll no-border" style="margin-top:12px;">
         <table id="segGCTable">
           <thead><tr id="segGCTableHeadRow"></tr></thead>
           <tbody id="segGCTableBody"></tbody>
@@ -907,6 +915,22 @@
         <span><span class="legend-dot" style="background:var(--green);"></span>&ge; 100% avance</span>
         <span><span class="legend-dot" style="background:var(--amber);"></span>85% – 99.9%</span>
         <span><span class="legend-dot" style="background:var(--red);"></span>&lt; 85%</span>
+      </div>
+
+      <div id="segGCExecBlock" style="display:none; margin-top:18px; padding-top:18px; border-top:1px solid var(--border);">
+        <h3 id="segGCExecTitle" style="margin-bottom:2px;">Objetivo por Ejecutivo</h3>
+        <p class="sub" style="margin:0 0 12px;">Objetivo total de cobro asignado a cada ejecutivo de Grandes Clientes, según cartera(s) a su cargo.</p>
+        <div class="table-scroll no-border">
+          <table id="segGCExecTable">
+            <thead><tr>
+              <th class="col-name">Ejecutivo</th>
+              <th>Cartera(s)</th>
+              <th style="text-align:center;">Objetivo Total (MMRD$)</th>
+            </tr></thead>
+            <tbody id="segGCExecTableBody"></tbody>
+            <tfoot><tr id="segGCExecTableFootRow"></tr></tfoot>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -2200,6 +2224,64 @@ PAGE 3 — SEG META POLÍGONO 2026
     }).join(', ');
   }
 
+  // Objetivo total (MMRD$) asignado a cada ejecutivo de Grandes Clientes (de Ejecutivos_Grandes_Clienteas.xlsx)
+  const EJECUTIVOS_OBJETIVO_RAW = {
+    'Altagracia Miguelina Melo Diaz': 14.13,
+    'Ana Victoria Castillo Cepeda': 16.96,
+    'Angela Michel Castillo Luciano': 169.42,
+    'Carlos Manuel De Jesus Encarnacion': 92.39,
+    'Claudia Petit': 69.44,
+    'Dayra Mejia Pujols': 151.28,
+    'Delyvette Alexandra Cruz De Henríquez': 118.64,
+    'Eddy Paul Garabito Madera': 325.00,
+    'Jhossianny Fasselly Perez Mendez': 148.03,
+    'Manuel Alexander Abreu Lorenzo': 71.40,
+    'Maribel Duran': 193.58,
+    'Mildred Dahiana Rodriguez Peralta': 350.00,
+    'Patricia Abdalla Patricio Florentino': 99.97,
+    'Patsy Ayerim Zabala Sanchez': 202.71,
+    'Prisila Estefania Terrero Brito': 25.13,
+    'Sandra Elizabeth Caamaño Ramirez': 51.60,
+    'Yafreisy Arias González': 74.56,
+    'Yoelis Romero Lugo': 36.76
+  };
+  // carteras a cargo de cada ejecutivo (lookup inverso de EJECUTIVOS_POR_CARTERA)
+  const CARTERAS_POR_EJECUTIVO = {};
+  Object.keys(EJECUTIVOS_POR_CARTERA).forEach(cartera => {
+    EJECUTIVOS_POR_CARTERA[cartera].forEach(nombre => {
+      const key = normalizeName(nombre);
+      if(!CARTERAS_POR_EJECUTIVO[key]) CARTERAS_POR_EJECUTIVO[key] = { nombre, carteras: [] };
+      CARTERAS_POR_EJECUTIVO[key].carteras.push(cartera);
+    });
+  });
+  const EJECUTIVOS_OBJETIVO_LIST = Object.keys(EJECUTIVOS_OBJETIVO_RAW)
+    .map(nombre => ({
+      nombre,
+      objetivo: EJECUTIVOS_OBJETIVO_RAW[nombre],
+      carteras: (CARTERAS_POR_EJECUTIVO[normalizeName(nombre)] || { carteras: [] }).carteras
+    }))
+    .sort((a, b) => b.objetivo - a.objetivo);
+  const EJECUTIVOS_OBJETIVO_TOTAL = EJECUTIVOS_OBJETIVO_LIST.reduce((a, e) => a + e.objetivo, 0);
+
+  function renderGCExecTable(){
+    const tbody = document.getElementById('segGCExecTableBody');
+    tbody.innerHTML = EJECUTIVOS_OBJETIVO_LIST.map(e => {
+      const link = mailtoEjecutivo(e.nombre, e.carteras[0] || '');
+      const nameHTML = link
+        ? '<span class="exec-mailto" data-mailto="' + link.url + '" data-copy-b64="' + b64EncodeUnicode(link.copyText) + '" title="Clic para copiar correo a ' + e.nombre + '">' +
+          e.nombre + ' <a href="' + link.url + '" class="mail-icon" title="Enviar correo a ' + e.nombre + '">✉</a></span>'
+        : e.nombre;
+      return '<tr>' +
+        '<td class="col-name">' + nameHTML + '</td>' +
+        '<td>' + (e.carteras.join(', ') || '—') + '</td>' +
+        '<td>' + money(e.objetivo) + '</td>' +
+        '</tr>';
+    }).join('');
+    document.getElementById('segGCExecTableFootRow').innerHTML =
+      '<td class="col-name">TOTAL</td><td></td><td>' + money(EJECUTIVOS_OBJETIVO_TOTAL) + '</td>';
+    bindMailtoRows(tbody);
+  }
+
   const MONTHS_META = {
     AGOSTO: { label: 'Agosto 2026', short: 'Ago 26', isClosed: true },
     SEPTIEMBRE: { label: 'Septiembre 2026', short: 'Sep 26', isClosed: false }
@@ -2406,6 +2488,8 @@ PAGE 3 — SEG META POLÍGONO 2026
 
     const foot = document.getElementById('segGCTableFootRow');
     foot.innerHTML = '';
+
+    renderGCExecTable();
   }
 
   function renderKPIs(){
@@ -2646,6 +2730,14 @@ PAGE 3 — SEG META POLÍGONO 2026
     if(!groupRow) return;
     gcGroupCollapsed = !gcGroupCollapsed;
     renderGC();
+  });
+
+  document.getElementById('segGCExecToggleBtn').addEventListener('click', () => {
+    const block = document.getElementById('segGCExecBlock');
+    const btn = document.getElementById('segGCExecToggleBtn');
+    const isHidden = block.style.display === 'none';
+    block.style.display = isHidden ? '' : 'none';
+    btn.textContent = isHidden ? 'Ocultar Objetivo por Ejecutivo' : 'Objetivo por Ejecutivo';
   });
 
   window.resetSegMetaPage = function(){
