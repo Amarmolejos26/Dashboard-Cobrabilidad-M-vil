@@ -1345,6 +1345,15 @@ function yesterdayLabel(){
   const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   return y.getDate() + ' de ' + months[y.getMonth()] + ' ' + y.getFullYear();
 }
+function cobroOnlineCorteLabel(){
+  const badge = document.querySelector('.page-nav-btn[data-page="cobroonline"] .beta-badge');
+  if(!badge) return null;
+  const m = badge.textContent.match(/(\d{2})-(\d{2})-(\d{4})/);
+  if(!m) return null;
+  const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const day = parseInt(m[1], 10), month = parseInt(m[2], 10) - 1, year = m[3];
+  return day + ' ' + months[month] + ' ' + year;
+}
 function hexToRgba(hex, alpha){
   const h = hex.replace('#','');
   const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
@@ -1444,6 +1453,8 @@ document.getElementById('pageNav').addEventListener('click', (e) => {
     document.getElementById('controlRow-' + p).style.display = (p === page) ? 'flex' : 'none';
   });
   document.getElementById('metaCarterasPill').style.display = (page === 'ranking' || page === 'segmeta' || page === 'cobroonline') ? 'none' : '';
+  const corteLabel = (page === 'cobroonline') ? cobroOnlineCorteLabel() : null;
+  document.getElementById('metaCorte').textContent = corteLabel || yesterdayLabel().replace(' de ', ' ');
   if(page === 'segmeta' && typeof window.resetSegMetaPage === 'function') window.resetSegMetaPage();
   if(page === 'ranking' && typeof window.resetRankingPage === 'function') window.resetRankingPage();
   if(page === 'cobroonline' && typeof window.resetCobroOnlinePage === 'function') window.resetCobroOnlinePage();
