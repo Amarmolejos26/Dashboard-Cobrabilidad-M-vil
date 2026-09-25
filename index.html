@@ -3088,6 +3088,14 @@ PAGE 3 — SEG META POLÍGONO 2026
   const GC_NAME_MAP = { 'Gobierno Cortable': 'Gobierno' };
   let activeZone = 'ALL';
 
+  // Mientras no se alcance el objetivo, el pendiente se muestra en rojo.
+  // Si ya se alcanzó o superó el objetivo, se muestra el excedente (en positivo) en verde.
+  function pendienteDisplay(v){
+    if(v === null || v === undefined || isNaN(v)) return '—';
+    const style = v > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
+    return '<span' + style + '>' + money(Math.abs(v)) + '</span>';
+  }
+
   document.getElementById('cobroCorteLabel').textContent = DATA.cobroonline.corte;
 
   // Los cobros de "CENTRALIZADO" (sin oficina/zona propia asignada en el archivo fuente) se
@@ -3149,8 +3157,10 @@ PAGE 3 — SEG META POLÍGONO 2026
     document.getElementById('cobroKpiObjetivo').textContent = money(objetivo);
     document.getElementById('cobroKpiAvance').textContent = (avance !== null) ? pct(avance, 2) : '—';
     document.getElementById('cobroKpiPendiente').textContent = money(pendiente);
+    const oocStyle = oocPendiente > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
+    const gcStyle = gcPendiente > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
     document.getElementById('cobroKpiPendienteSub').innerHTML =
-      '<span>OOCC/PPEE <b>' + money(oocPendiente) + '</b></span><span>GGCC <b>' + money(gcPendiente) + '</b></span>';
+      '<span>OOCC/PPEE <b' + oocStyle + '>' + money(Math.abs(oocPendiente)) + '</b></span><span>GGCC <b' + gcStyle + '>' + money(Math.abs(gcPendiente)) + '</b></span>';
   }
 
   function renderZonaTable(){
@@ -3178,7 +3188,7 @@ PAGE 3 — SEG META POLÍGONO 2026
         '<td class="num-cell">' + money(zCobrado) + '</td>' +
         '<td class="num-cell"' + (hasObjetivo ? '' : numCellStyle) + '>' + (hasObjetivo ? money(zObjetivo) : noData) + '</td>' +
         '<td>' + (zAvance !== null ? badge(zAvance) : noData) + '</td>' +
-        '<td class="num-cell"' + (zPendiente !== null ? '' : numCellStyle) + '>' + (zPendiente !== null ? money(zPendiente) : noData) + '</td>' +
+        '<td class="num-cell"' + (zPendiente !== null ? '' : numCellStyle) + '>' + (zPendiente !== null ? pendienteDisplay(zPendiente) : noData) + '</td>' +
         '</tr>';
     });
 
@@ -3192,7 +3202,7 @@ PAGE 3 — SEG META POLÍGONO 2026
         '<td class="num-cell">' + money(grandCobrado) + '</td>' +
         '<td class="num-cell">' + money(grandObjetivo) + '</td>' +
         '<td>' + (grandAvance !== null ? badge(grandAvance) : '—') + '</td>' +
-        '<td class="num-cell">' + (grandPendiente !== null ? money(grandPendiente) : '—') + '</td>' +
+        '<td class="num-cell">' + (grandPendiente !== null ? pendienteDisplay(grandPendiente) : '—') + '</td>' +
         '</tr>';
     }
 
@@ -3269,7 +3279,7 @@ PAGE 3 — SEG META POLÍGONO 2026
       '<td class="num-cell">' + money(c.cobrado) + '</td>' +
       '<td class="num-cell">' + ((c.objetivo !== null && c.objetivo !== undefined) ? money(c.objetivo) : '—') + '</td>' +
       '<td>' + (c.avance !== null ? badge(c.avance) : '—') + '</td>' +
-      '<td class="num-cell">' + (c.pendiente !== null ? money(c.pendiente) : '—') + '</td>' +
+      '<td class="num-cell">' + (c.pendiente !== null ? pendienteDisplay(c.pendiente) : '—') + '</td>' +
       '</tr>'
     )).join('');
 
@@ -3282,7 +3292,7 @@ PAGE 3 — SEG META POLÍGONO 2026
       '<td class="num-cell">' + money(totalCobrado) + '</td>' +
       '<td class="num-cell">' + money(totalObjetivo) + '</td>' +
       '<td>' + (totalAvance !== null ? badge(totalAvance) : '—') + '</td>' +
-      '<td class="num-cell">' + money(totalPendiente) + '</td>' +
+      '<td class="num-cell">' + pendienteDisplay(totalPendiente) + '</td>' +
       '</tr>';
 
     document.getElementById('cobroGCTableBody').innerHTML = html;
