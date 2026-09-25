@@ -2525,8 +2525,8 @@ PAGE 3 — SEG META POLÍGONO 2026
       const pendOOCC = Math.max(oocc.objetivo - oocc.cobro_actual, 0);
       const pendGGCC = Math.max(gcT.objetivo - gcT.cobro_actual, 0);
       pendienteSubEl.innerHTML =
-        '<span>OOCC/PPEE <b>' + money(pendOOCC) + '</b></span>' +
-        '<span>GGCC <b>' + money(pendGGCC) + '</b></span>';
+        '<span>Regulares <b>' + money(pendOOCC) + '</b></span>' +
+        '<span>Grandes Clientes <b>' + money(pendGGCC) + '</b></span>';
     } else {
       pendienteSubEl.innerHTML = '<span>' + label + '</span>';
     }
@@ -3160,7 +3160,7 @@ PAGE 3 — SEG META POLÍGONO 2026
     const oocStyle = oocPendiente > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
     const gcStyle = gcPendiente > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
     document.getElementById('cobroKpiPendienteSub').innerHTML =
-      '<span>OOCC/PPEE <b' + oocStyle + '>' + money(Math.abs(oocPendiente)) + '</b></span><span>GGCC <b' + gcStyle + '>' + money(Math.abs(gcPendiente)) + '</b></span>';
+      '<span>Regulares <b' + oocStyle + '>' + money(Math.abs(oocPendiente)) + '</b></span><span>Grandes Clientes <b' + gcStyle + '>' + money(Math.abs(gcPendiente)) + '</b></span>';
   }
 
   function renderZonaTable(){
