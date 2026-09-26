@@ -1129,18 +1129,18 @@
       <div class="card kpi seg-kpi c-accent">
         <div class="lbl">Importe Cobrado</div>
         <div class="val" id="cobroKpiCobrado">—</div>
-        <div class="sub">MM RD$ · Total empresa <span id="cobroKpiVsAnterior" title="Sept-25 es mes cerrado; Sept-26 es corte parcial al día de hoy."></span></div>
+        <div class="sub"><span id="cobroKpiScopeCobrado">MM RD$ · Total empresa</span> <span id="cobroKpiVsAnterior" title="Sept-25 es mes cerrado; Sept-26 es corte parcial al día de hoy."></span></div>
         <div class="sub kpi-updated" id="cobroKpiUpdated">—</div>
       </div>
       <div class="card kpi seg-kpi">
         <div class="lbl">Objetivo de Cobro</div>
         <div class="val" id="cobroKpiObjetivo">—</div>
-        <div class="sub">MM RD$ · Total empresa</div>
+        <div class="sub" id="cobroKpiScopeObjetivo">MM RD$ · Total empresa</div>
       </div>
       <div class="card kpi seg-kpi c-green">
         <div class="lbl">% Avance Objetivo</div>
         <div class="val" id="cobroKpiAvance">—</div>
-        <div class="sub">vs. objetivo total de Septiembre</div>
+        <div class="sub" id="cobroKpiScopeAvance">vs. objetivo total de Septiembre</div>
       </div>
       <div class="card kpi seg-kpi c-red">
         <div class="lbl">Pendiente por Cobrar</div>
@@ -3190,6 +3190,7 @@ PAGE 3 — SEG META POLÍGONO 2026
     [...zoneFilterEl.children].forEach(c => c.classList.toggle('active', c === chip));
     renderZonaTable();
     renderCobroBarChart();
+    renderKPIs(gcTotals);
   });
 
   function importeZona(z){
@@ -3211,31 +3212,65 @@ PAGE 3 — SEG META POLÍGONO 2026
     return objetivoForZone(activeZone);
   }
 
-  // Los KPIs superiores siempre reflejan el total de la empresa (Zonas/OOCC + Grandes Clientes),
-  // sin importar la zona seleccionada en el filtro (ese filtro solo afecta la tabla de detalle por zona).
+  // Los KPIs superiores reflejan el total de la empresa (Zonas/OOCC + Grandes Clientes) cuando el
+  // filtro está en "Total Empresa", y los datos de esa zona (solo Regulares/Zonas-OOCC, ya que
+  // Grandes Clientes no tiene objetivo desglosado por zona) cuando se selecciona una zona específica.
   function renderKPIs(gcTotals){
-    const oocCobrado = filterZones.reduce((s,z) => s + importeZona(z), 0);
-    const oocObjetivo = filterZones.reduce((s,z) => s + (objetivoForZone(z) || 0), 0);
-    const cobrado = oocCobrado + gcTotals.totalCobrado;
-    const objetivo = oocObjetivo + gcTotals.totalObjetivo;
-    const avance = objetivo ? cobrado / objetivo : null;
-    const pendiente = objetivo - cobrado;
-    const oocPendiente = oocObjetivo - oocCobrado;
-    const gcPendiente = gcTotals.totalObjetivo - gcTotals.totalCobrado;
+    const isZone = activeZone !== 'ALL';
+
+    let cobrado, objetivo, avance, pendiente, anteriorRef, scopeLabel;
+
+    if(isZone){
+      cobrado = importeZona(activeZone);
+      objetivo = objetivoForZone(activeZone) || 0;
+      avance = objetivo ? cobrado / objetivo : null;
+      pendiente = objetivo - cobrado;
+      anteriorRef = ZONA_COBRADO_2025[activeZone];
+      scopeLabel = ZONE_LABEL[activeZone] || activeZone;
+    } else {
+      const oocCobrado = filterZones.reduce((s,z) => s + importeZona(z), 0);
+      const oocObjetivo = filterZones.reduce((s,z) => s + (objetivoForZone(z) || 0), 0);
+      cobrado = oocCobrado + gcTotals.totalCobrado;
+      objetivo = oocObjetivo + gcTotals.totalObjetivo;
+      avance = objetivo ? cobrado / objetivo : null;
+      pendiente = objetivo - cobrado;
+      anteriorRef = COBRADO_SEPT_2025_TOTAL;
+    }
 
     document.getElementById('cobroKpiCobrado').textContent = money(cobrado);
-    const deltaAnterior = cobrado - COBRADO_SEPT_2025_TOTAL;
-    const vsStyle = deltaAnterior >= 0 ? ' style="color:var(--green);"' : ' style="color:var(--red);"';
-    const vsArrow = deltaAnterior >= 0 ? '▲' : '▼';
-    document.getElementById('cobroKpiVsAnterior').innerHTML = '· <span' + vsStyle + '>' + vsArrow + ' ' + money0(Math.abs(deltaAnterior)) + ' MM vs Sept-25</span>';
+    const deltaAnterior = (anteriorRef !== null && anteriorRef !== undefined) ? (cobrado - anteriorRef) : null;
+    if(deltaAnterior !== null){
+      const vsStyle = deltaAnterior >= 0 ? ' style="color:var(--green);"' : ' style="color:var(--red);"';
+      const vsArrow = deltaAnterior >= 0 ? '▲' : '▼';
+      document.getElementById('cobroKpiVsAnterior').innerHTML = '· <span' + vsStyle + '>' + vsArrow + ' ' + money0(Math.abs(deltaAnterior)) + ' MM vs Sept-25</span>';
+    } else {
+      document.getElementById('cobroKpiVsAnterior').innerHTML = '';
+    }
     document.getElementById('cobroKpiUpdated').textContent = cobroOnlineUpdatedLabel() || '—';
     document.getElementById('cobroKpiObjetivo').textContent = money(objetivo);
     document.getElementById('cobroKpiAvance').textContent = (avance !== null) ? pct(avance, 2) : '—';
     document.getElementById('cobroKpiPendiente').textContent = money(pendiente);
-    const oocStyle = oocPendiente > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
-    const gcStyle = gcPendiente > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
-    document.getElementById('cobroKpiPendienteSub').innerHTML =
-      '<span>Regulares <b' + oocStyle + '>' + money(Math.abs(oocPendiente)) + '</b></span><span>Grandes Clientes <b' + gcStyle + '>' + money(Math.abs(gcPendiente)) + '</b></span>';
+
+    if(isZone){
+      document.getElementById('cobroKpiScopeCobrado').textContent = 'MM RD$ · Zona ' + scopeLabel;
+      document.getElementById('cobroKpiScopeObjetivo').textContent = 'MM RD$ · Zona ' + scopeLabel;
+      document.getElementById('cobroKpiScopeAvance').textContent = 'vs. objetivo de Septiembre · ' + scopeLabel;
+      const pStyle = pendiente > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
+      document.getElementById('cobroKpiPendienteSub').innerHTML =
+        '<span>Zona ' + scopeLabel + ' <b' + pStyle + '>' + money(Math.abs(pendiente)) + '</b></span><span style="color:var(--ink-soft);">Regulares (Zonas/OOCC)</span>';
+    } else {
+      document.getElementById('cobroKpiScopeCobrado').textContent = 'MM RD$ · Total empresa';
+      document.getElementById('cobroKpiScopeObjetivo').textContent = 'MM RD$ · Total empresa';
+      document.getElementById('cobroKpiScopeAvance').textContent = 'vs. objetivo total de Septiembre';
+      const oocCobrado = filterZones.reduce((s,z) => s + importeZona(z), 0);
+      const oocObjetivo = filterZones.reduce((s,z) => s + (objetivoForZone(z) || 0), 0);
+      const oocPendiente = oocObjetivo - oocCobrado;
+      const gcPendiente = gcTotals.totalObjetivo - gcTotals.totalCobrado;
+      const oocStyle = oocPendiente > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
+      const gcStyle = gcPendiente > 0 ? ' style="color:var(--red);"' : ' style="color:var(--green);"';
+      document.getElementById('cobroKpiPendienteSub').innerHTML =
+        '<span>Regulares <b' + oocStyle + '>' + money(Math.abs(oocPendiente)) + '</b></span><span>Grandes Clientes <b' + gcStyle + '>' + money(Math.abs(gcPendiente)) + '</b></span>';
+    }
   }
 
   function renderZonaTable(){
@@ -3385,6 +3420,7 @@ PAGE 3 — SEG META POLÍGONO 2026
     [...zoneFilterEl.children].forEach(c => c.classList.toggle('active', c.dataset.zone === 'ALL'));
     renderZonaTable();
     renderCobroBarChart();
+    renderKPIs(gcTotals);
   };
 
   const gcTotals = renderGCTable();
