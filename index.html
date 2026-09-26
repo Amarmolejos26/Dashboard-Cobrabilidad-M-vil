@@ -301,6 +301,8 @@
   .kpi .lbl{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; font-weight:600;}
   .kpi .val{font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:700; margin-top:4px; color:var(--ink);}
   .kpi .sub{font-size:11px; color:var(--ink-soft); margin:4px 0 0;}
+  .kpi-updated{font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.72; display:flex; align-items:center; gap:4px;}
+  .kpi-updated::before{content:''; width:6px; height:6px; border-radius:50%; background:#3FB27F; display:inline-block; flex:none;}
   .kpi-breakdown{display:flex; flex-wrap:wrap; gap:2px 14px; font-size:13px;}
   .kpi-breakdown b{font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--ink); font-size:14.5px;}
   .kpi{border-top:3px solid var(--primary); padding:13px 16px;}
@@ -1104,6 +1106,7 @@
         <div class="lbl">Importe Cobrado</div>
         <div class="val" id="cobroKpiCobrado">—</div>
         <div class="sub">MM RD$ · Total empresa</div>
+        <div class="sub kpi-updated" id="cobroKpiUpdated">—</div>
       </div>
       <div class="card kpi seg-kpi">
         <div class="lbl">Objetivo de Cobro</div>
@@ -1357,6 +1360,13 @@ function cobroOnlineCorteLabel(){
   const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const day = parseInt(m[1], 10), month = parseInt(m[2], 10) - 1, year = m[3];
   return day + ' ' + months[month] + ' ' + year;
+}
+function cobroOnlineUpdatedLabel(){
+  const badge = document.querySelector('.page-nav-btn[data-page="cobroonline"] .beta-badge');
+  if(!badge) return null;
+  const m = badge.textContent.match(/Act\.\s*(\d{1,2}:\d{2}\s*[AP]M)\s*(\d{2})-(\d{2})-(\d{4})/);
+  if(!m) return null;
+  return 'Actualizado ' + m[1] + ' · ' + m[2] + '-' + m[3] + '-' + m[4];
 }
 function hexToRgba(hex, alpha){
   const h = hex.replace('#','');
@@ -3163,6 +3173,7 @@ PAGE 3 — SEG META POLÍGONO 2026
     const gcPendiente = gcTotals.totalObjetivo - gcTotals.totalCobrado;
 
     document.getElementById('cobroKpiCobrado').textContent = money(cobrado);
+    document.getElementById('cobroKpiUpdated').textContent = cobroOnlineUpdatedLabel() || '—';
     document.getElementById('cobroKpiObjetivo').textContent = money(objetivo);
     document.getElementById('cobroKpiAvance').textContent = (avance !== null) ? pct(avance, 2) : '—';
     document.getElementById('cobroKpiPendiente').textContent = money(pendiente);
