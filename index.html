@@ -264,6 +264,12 @@
   #cobroTable tr.grand-total-row td, #cobroGCTable tr.grand-total-row td{
     background:var(--primary); color:#fff; font-family:'IBM Plex Mono',monospace; border-bottom:none;
   }
+  #cobroTable tr.grand-total-row td span[style*="--red"], #cobroGCTable tr.grand-total-row td span[style*="--red"]{
+    background:var(--red-bg) !important; padding:3px 8px; border-radius:6px; font-weight:700;
+  }
+  #cobroTable tr.grand-total-row td span[style*="--green"], #cobroGCTable tr.grand-total-row td span[style*="--green"]{
+    background:var(--green-bg) !important; padding:3px 8px; border-radius:6px; font-weight:700;
+  }
   #cobroTable tr.grand-total-row td:first-child, #cobroGCTable tr.grand-total-row td:first-child{font-family:inherit;}
   #cobroTable, #cobroGCTable{table-layout:fixed;}
   #cobroTable{width:500px;}
