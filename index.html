@@ -1232,10 +1232,10 @@ function saludoEncargado(encargado){
   const gender = guessGender(encargado);
   return 'Estimad' + (gender === 'M' ? 'o' : 'a') + ' ' + encargado + ',';
 }
-function mailtoRezagada(oficina, encargado, bodyLines){
+function mailtoRezagada(oficina, encargado, bodyLines, subjectPrefix){
   const email = officeEmail(oficina);
   if(!email) return null;
-  const subject = 'Seguimiento de desempeño — Oficina ' + oficina;
+  const subject = (subjectPrefix || 'Seguimiento de desempeño') + ' — Oficina ' + oficina;
   const saludo = saludoEncargado(encargado);
   const bodyText = [saludo, '', ...bodyLines, '', 'Se requiere reforzar el seguimiento a la cartera de clientes de esta oficina, con el fin de cerrar la brecha frente al promedio general y alcanzar la meta establecida.', '', 'Saludos,'].join('\n');
   const url = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
@@ -2439,7 +2439,7 @@ PAGE 3 — SEG META POLÍGONO 2026
       const link = mailtoRezagada(o.oficina, o.encargado, [
         'De acuerdo al corte de ' + meta.label + ', la oficina ' + o.oficina + ' presenta un % de avance de objetivo de ' + pct(o.avance_objetivo, 2) + ',',
         'lo cual está ' + Math.abs(o.gapPP).toFixed(2) + ' puntos porcentuales por debajo del promedio general (Total Regulares: ' + pct(bench, 2) + ').'
-      ]);
+      ], 'Seguimiento Desempeño Objetivo Cobro');
       return '<tr' + (link ? ' class="row-clickable" data-mailto="' + link.url + '" data-copy-b64="' + b64EncodeUnicode(link.copyText) + '" title="Clic para copiar correo al encargado"' : '') + '>' +
       '<td><span class="alert-rank">' + (i+1) + '</span></td>' +
       '<td>' + o.oficina + (link ? ' <a href="' + link.url + '" class="mail-icon" title="Enviar correo al encargado">✉</a>' : '') + '</td>' +
@@ -3019,7 +3019,7 @@ PAGE 3 — SEG META POLÍGONO 2026
       const link = mailtoRezagada(o.oficina, o.encargado, [
         'De acuerdo al corte de ' + CORTE + ', la oficina ' + o.oficina + ' presenta un % de avance de recuperación de ' + pct(o.avance, 2) + ',',
         'lo cual está ' + Math.abs(o.gapPP).toFixed(2) + ' puntos porcentuales por debajo del promedio general (Total Regulares: ' + pct(BENCH, 2) + ').'
-      ]);
+      ], 'Desempeño Ranking Recuperación de Deuda');
       return '<tr' + (link ? ' class="row-clickable" data-mailto="' + link.url + '" data-copy-b64="' + b64EncodeUnicode(link.copyText) + '" title="Clic para copiar correo al encargado"' : '') + '>' +
       '<td><span class="alert-rank">' + (i+1) + '</span></td>' +
       '<td>' + o.oficina + (link ? ' <a href="' + link.url + '" class="mail-icon" title="Enviar correo al encargado">✉</a>' : '') + '</td>' +
