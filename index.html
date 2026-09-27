@@ -274,7 +274,7 @@
   #cobroTable, #cobroGCTable{table-layout:fixed;}
   #cobroTable{width:500px;}
   #cobroGCTable{width:580px;}
-  .g-cobro-detail{display:grid; grid-template-columns:max-content max-content minmax(280px, 1fr); gap:24px; justify-content:start;}
+  .g-cobro-detail{display:grid; grid-template-columns:max-content max-content; gap:24px; justify-content:start;}
   @media (max-width: 900px){
     .g-cobro-detail{grid-template-columns:1fr;}
   }
@@ -329,6 +329,13 @@
   .kpi-updated::before{content:''; width:6px; height:6px; border-radius:50%; background:#3FB27F; display:inline-block; flex:none;}
   .kpi-breakdown{display:flex; flex-wrap:wrap; gap:2px 14px; font-size:13px;}
   .kpi-breakdown b{font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--ink); font-size:14.5px;}
+  /* Indicadores (KPI) de Cobro Online un poco más grandes que el resto del dashboard */
+  #page-cobroonline .kpi .lbl{font-size:12.5px;}
+  #page-cobroonline .kpi .val{font-size:25px;}
+  #page-cobroonline .kpi .sub{font-size:12.5px;}
+  #page-cobroonline .kpi-updated{font-size:11px;}
+  #page-cobroonline .kpi-breakdown{font-size:14px;}
+  #page-cobroonline .kpi-breakdown b{font-size:16px;}
   .kpi{border-top:3px solid var(--primary); padding:13px 16px;}
   .kpi.c-green{border-top-color:var(--green);}
   .kpi.c-amber{border-top-color:var(--amber);}
@@ -1170,13 +1177,6 @@
         </div>
       </div>
 
-      <div class="card" style="min-width:280px;">
-        <h3>% Avance por Zona</h3>
-        <p class="sub">Zonas / O.O.C.C · Cobro Online vs. objetivo de Septiembre</p>
-        <div style="position:relative; height:280px;">
-          <canvas id="cobroBarChart"></canvas>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -3189,7 +3189,6 @@ PAGE 3 — SEG META POLÍGONO 2026
     activeZone = chip.dataset.zone;
     [...zoneFilterEl.children].forEach(c => c.classList.toggle('active', c === chip));
     renderZonaTable();
-    renderCobroBarChart();
     renderKPIs(gcTotals);
   });
 
@@ -3322,51 +3321,6 @@ PAGE 3 — SEG META POLÍGONO 2026
     document.getElementById('cobroTableBody').innerHTML = html;
   }
 
-  let cobroBarChart;
-  function renderCobroBarChart(){
-    const BAR_COLOR = '#2F3B48';
-    let rowsChart = filterZones.map(z => ({
-      z,
-      label: ZONE_LABEL[z],
-      v: objetivoForZone(z) ? +((importeZona(z) / objetivoForZone(z)) * 100).toFixed(2) : null
-    })).filter(r => r.v !== null);
-    rowsChart.sort((a,b) => b.v - a.v);
-
-    const labels = rowsChart.map(r => r.label);
-    const values = rowsChart.map(r => r.v);
-    const bgColors = rowsChart.map(r => (activeZone !== 'ALL' && activeZone !== r.z) ? hexToRgba(BAR_COLOR, 0.32) : BAR_COLOR);
-    const borderColors = rowsChart.map(r => activeZone === r.z ? '#ED7D31' : 'transparent');
-    const borderWidths = rowsChart.map(r => activeZone === r.z ? 2 : 0);
-
-    if(cobroBarChart){ cobroBarChart.destroy(); }
-    const ctx = document.getElementById('cobroBarChart').getContext('2d');
-    cobroBarChart = new Chart(ctx, {
-      type: 'bar',
-      data: { labels, datasets: [{ data: values, backgroundColor: bgColors, borderColor: borderColors, borderWidth: borderWidths, borderRadius: 6, maxBarThickness: 32 }] },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: (c) => c.parsed.x.toFixed(2) + '%' } },
-          datalabels: {
-            display: true,
-            anchor: 'center',
-            align: 'center',
-            color: '#fff',
-            font: { size: 12, weight: '700', family: "'IBM Plex Mono', monospace" },
-            formatter: (v) => v.toFixed(2) + '%'
-          }
-        },
-        scales: {
-          x: { ticks: { callback: (v) => v + '%' }, grid: { color: '#E9EBEF' }, min: 0 },
-          y: { grid: { display: false } }
-        }
-      }
-    });
-  }
-
   function renderGCTable(){
     const carteraObjetivo = {};
     SEPT_GC.carteras.forEach(c => { carteraObjetivo[c.cartera] = CARTERA_OBJETIVO_OVERRIDE[c.cartera] !== undefined ? CARTERA_OBJETIVO_OVERRIDE[c.cartera] : c.objetivo; });
@@ -3419,14 +3373,12 @@ PAGE 3 — SEG META POLÍGONO 2026
     activeZone = 'ALL';
     [...zoneFilterEl.children].forEach(c => c.classList.toggle('active', c.dataset.zone === 'ALL'));
     renderZonaTable();
-    renderCobroBarChart();
     renderKPIs(gcTotals);
   };
 
   const gcTotals = renderGCTable();
   renderKPIs(gcTotals);
   renderZonaTable();
-  renderCobroBarChart();
 })();
 
 
