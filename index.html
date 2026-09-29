@@ -3372,6 +3372,15 @@ PAGE 3 — SEG META POLÍGONO 2026
   renderZonaTable();
 })();
 
+/* ===== Página inicial al abrir el dashboard (TEMPORAL mientras no cierre el mes) =====
+   Mientras el mes de Septiembre esté abierto, el dashboard debe abrir por defecto en
+   "Cobro Online" en lugar de "Seg. Meta". Cuando cierre el mes, borrar este bloque
+   (o cambiar DEFAULT_PAGE a 'segmeta') para volver al comportamiento normal. */
+(function(){
+  const DEFAULT_PAGE = 'cobroonline';
+  const btn = document.querySelector('.page-nav-btn[data-page="' + DEFAULT_PAGE + '"]');
+  if(btn && !btn.classList.contains('active')) btn.click();
+})();
 
 </script>
 </body>
