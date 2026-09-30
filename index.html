@@ -3465,7 +3465,29 @@ PAGE 3 — SEG META POLÍGONO 2026
     btn.innerHTML = '<span>Generando imagen...</span>';
     btn.disabled = true;
     const bg = getComputedStyle(document.body).backgroundColor || '#ffffff';
-    html2canvas(area, { scale: 3, backgroundColor: bg, useCORS: true }).then(function(canvas){
+    html2canvas(area, {
+      scale: 3, backgroundColor: bg, useCORS: true,
+      onclone: function(clonedDoc){
+        // html2canvas no recorta bien un border-top grueso contra el border-radius de la
+        // tarjeta (deja las esquinas cuadradas asomando). Solo en el clon usado para generar
+        // la imagen, se sustituye el border-top por un pseudo-elemento recortado con
+        // overflow:hidden, que sí se recorta correctamente. El dashboard en vivo no cambia.
+        clonedDoc.querySelectorAll('#cobroCaptureArea .kpi').forEach(function(el){
+          const cs = clonedDoc.defaultView.getComputedStyle(el);
+          const accentColor = cs.borderTopColor;
+          el.style.borderTop = 'none';
+          el.style.paddingTop = '16px';
+          el.style.position = 'relative';
+          el.style.overflow = 'hidden';
+          const bar = clonedDoc.createElement('div');
+          bar.style.position = 'absolute';
+          bar.style.top = '0'; bar.style.left = '0'; bar.style.right = '0';
+          bar.style.height = '3px';
+          bar.style.background = accentColor;
+          el.insertBefore(bar, el.firstChild);
+        });
+      }
+    }).then(function(canvas){
       const link = document.createElement('a');
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
