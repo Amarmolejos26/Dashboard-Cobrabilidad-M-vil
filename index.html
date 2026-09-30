@@ -717,6 +717,10 @@
 
   <!-- ============ PAGE 1: COBRABILIDAD EMPRESA ============ -->
   <section id="page-empresa" class="page">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button id="empDownloadBtn" class="chip" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Descarga las tarjetas KPI como imagen en alta definición, lista para compartir por WhatsApp">⬇ Descargar imagen (HD)</button>
+    </div>
+    <div id="empCaptureArea">
     <section class="grid g-kpi-5" id="empKpiGrid">
       <div class="card kpi c-accent">
         <div class="lbl" id="empKpiEmpresaLabel">Cobrabilidad Móvil Empresa</div>
@@ -744,6 +748,7 @@
         <div class="sub" id="empKpiPromedioSub">—</div>
       </div>
     </section>
+    </div>
 
     <div class="view-toggle-row">
       <div class="view-toggle">
@@ -800,7 +805,11 @@
 
   <!-- ============ PAGE 2: COBRABILIDAD POR OFICINAS Y PUNTOS EXPRESOS ============ -->
   <section id="page-poligono" class="page">
-    <section class="grid g-kpi">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button id="poliDownloadBtn" class="chip" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Descarga las tarjetas KPI como imagen en alta definición, lista para compartir por WhatsApp">⬇ Descargar imagen (HD)</button>
+    </div>
+    <div id="poliCaptureArea">
+    <section class="grid g-kpi" id="poliKpiGrid">
       <div class="card kpi c-accent">
         <div class="lbl" id="poliKpiEmpresaLabel">Cobrabilidad Oficinas y Puntos Expresos</div>
         <div class="val" id="poliKpiEmpresa">—</div>
@@ -832,6 +841,7 @@
         <div class="sub" id="poliKpiPromedioSub">—</div>
       </div>
     </section>
+    </div>
 
     <div class="view-toggle-row">
       <div class="view-toggle">
@@ -889,7 +899,11 @@
 
   <!-- ============ PAGE 3: SEG. META OOCC / PPEE AGOSTO 2026 ============ -->
   <section id="page-segmeta" class="page active">
-    <section class="grid g-kpi">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button id="segDownloadBtn" class="chip" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Descarga las tarjetas KPI como imagen en alta definición, lista para compartir por WhatsApp">⬇ Descargar imagen (HD)</button>
+    </div>
+    <div id="segCaptureArea">
+    <section class="grid g-kpi" id="segKpiGrid">
       <div class="card kpi seg-kpi c-accent">
         <div class="lbl" id="segKpiObjLabel">Objetivo</div>
         <div class="val" id="segKpiObj">—</div>
@@ -921,6 +935,7 @@
         <div class="sub" id="segKpiPeorVal">—</div>
       </div>
     </section>
+    </div>
 
     <div class="grid g-seg-detail" id="segDetailGrid" style="margin-top:18px; align-items:start;">
       <div class="card">
@@ -1032,7 +1047,11 @@
 
   <!-- ============ PAGE 4: RANKING DE RECUPERACIÓN DE DEUDA ============ -->
   <section id="page-ranking" class="page">
-    <section class="grid g-kpi-4">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button id="rankDownloadBtn" class="chip" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Descarga las tarjetas KPI como imagen en alta definición, lista para compartir por WhatsApp">⬇ Descargar imagen (HD)</button>
+    </div>
+    <div id="rankCaptureArea">
+    <section class="grid g-kpi-4" id="rankKpiGrid">
       <div class="card kpi seg-kpi c-accent">
         <div class="lbl">Meta General</div>
         <div class="val" id="rankKpiMeta">—</div>
@@ -1054,6 +1073,7 @@
         <div class="sub" id="rankKpiDiferenciaSub">MM RD$ por recuperar</div>
       </div>
     </section>
+    </div>
 
     <div class="card" style="margin-top:18px;">
       <h3>Ranking Recuperación de Deuda por Zonas</h3>
@@ -3455,12 +3475,14 @@ PAGE 3 — SEG META POLÍGONO 2026
   if(btn && !btn.classList.contains('active')) btn.click();
 })();
 
-/* ===== Descargar KPIs + tablas de Cobro Online como imagen en alta definición =====
+/* ===== Descargar vistas como imagen en alta definición =====
    Pensado para compartir por WhatsApp sin perder calidad (screenshot normal se ve pixelado).
-   Usa html2canvas con scale alto (3x) para producir un PNG nítido. */
-(function(){
-  const btn = document.getElementById('cobroDownloadBtn');
-  const area = document.getElementById('cobroCaptureArea');
+   Usa html2canvas con scale alto (3x) para producir un PNG nítido. Función genérica: se
+   reutiliza para el botón de Cobro Online (KPIs + tablas) y para los botones de Seg. Meta,
+   Ranking y Cobrabilidad Móvil (solo tarjetas KPI). */
+function setupImageDownloadButton(btnId, areaId, filenamePrefix){
+  const btn = document.getElementById(btnId);
+  const area = document.getElementById(areaId);
   if(!btn || !area) return;
   btn.addEventListener('click', function(){
     if(typeof html2canvas === 'undefined'){
@@ -3489,7 +3511,7 @@ PAGE 3 — SEG META POLÍGONO 2026
           red: rootStyle.getPropertyValue('--red-bg').trim(),
           green: rootStyle.getPropertyValue('--green-bg').trim()
         };
-        clonedDoc.querySelectorAll('#cobroCaptureArea [data-accent]').forEach(function(el){
+        clonedDoc.querySelectorAll('#' + areaId + ' [data-accent]').forEach(function(el){
           const accent = el.getAttribute('data-accent');
           const color = accentColors[accent];
           if(color){
@@ -3535,7 +3557,7 @@ PAGE 3 — SEG META POLÍGONO 2026
         // tarjeta (deja las esquinas cuadradas asomando). Solo en el clon usado para generar
         // la imagen, se sustituye el border-top por un pseudo-elemento recortado con
         // overflow:hidden, que sí se recorta correctamente. El dashboard en vivo no cambia.
-        clonedDoc.querySelectorAll('#cobroCaptureArea .kpi').forEach(function(el){
+        clonedDoc.querySelectorAll('#' + areaId + ' .kpi').forEach(function(el){
           const cs = clonedDoc.defaultView.getComputedStyle(el);
           const accentColor = cs.borderTopColor;
           el.style.borderTop = 'none';
@@ -3555,7 +3577,7 @@ PAGE 3 — SEG META POLÍGONO 2026
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
       const stamp = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + '_' + pad(now.getHours()) + pad(now.getMinutes());
-      link.download = 'Cobro_Online_' + stamp + '.png';
+      link.download = filenamePrefix + '_' + stamp + '.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
       btn.innerHTML = originalLabel;
@@ -3567,7 +3589,12 @@ PAGE 3 — SEG META POLÍGONO 2026
       btn.disabled = false;
     });
   });
-})();
+}
+setupImageDownloadButton('cobroDownloadBtn', 'cobroCaptureArea', 'Cobro_Online');
+setupImageDownloadButton('segDownloadBtn', 'segCaptureArea', 'Seg_Meta');
+setupImageDownloadButton('rankDownloadBtn', 'rankCaptureArea', 'Ranking');
+setupImageDownloadButton('empDownloadBtn', 'empCaptureArea', 'Cobrabilidad_Movil_Empresa');
+setupImageDownloadButton('poliDownloadBtn', 'poliCaptureArea', 'Cobrabilidad_Movil_Oficinas');
 
 </script>
 </body>
