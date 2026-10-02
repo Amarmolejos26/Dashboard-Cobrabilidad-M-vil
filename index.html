@@ -134,6 +134,11 @@
   }
   .download-hd-btn:hover{background:#E2E9F0;}
   .download-hd-btn:disabled{opacity:.7; cursor:default;}
+  /* Respiro superior en las áreas capturadas para la imagen HD: evita que las tarjetas KPI
+     (con su borde de color y sombra) queden pegadas al borde de la imagen y se vean cortadas. */
+  #empCaptureArea, #poliCaptureArea, #segCaptureArea, #rankCaptureArea, #cobroCaptureArea, #cierreCaptureArea{
+    padding-top:16px;
+  }
   .month-select-wrap{display:flex; align-items:center; gap:8px;}
   .month-select-wrap label{font-size:11.5px; color:#C8D6E5; white-space:nowrap;}
   .month-select-wrap select{
@@ -258,6 +263,69 @@
   table.goal-table tbody td{padding:9px 10px; border-bottom:1px solid var(--border); text-align:left; white-space:normal;}
   table.goal-table tbody tr:last-child td{border-bottom:none;}
   .goal-empty{text-align:center; padding:26px; color:var(--ink-soft); font-size:13px;}
+
+  /* ===== Cierre de Mes (reporte Ranking para correo) ===== */
+  .cierre-stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+  @media (max-width:900px){ .cierre-stat-grid{grid-template-columns:repeat(2,1fr);} }
+  .cierre-stat{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:12px 14px; display:flex; align-items:center; gap:12px;
+  }
+  .cierre-stat.highlight{background:var(--green-bg); border-color:rgba(46,158,109,0.35);}
+  .cierre-stat-icon{
+    width:34px; height:34px; border-radius:50%; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center; font-size:16px;
+    background:var(--primary-light); color:var(--primary);
+  }
+  .cierre-stat.highlight .cierre-stat-icon{background:#fff; color:var(--green);}
+  .cierre-stat .cierre-stat-icon.ic-green{background:var(--green-bg); color:var(--green);}
+  .cierre-stat .cierre-stat-icon.ic-amber{background:var(--amber-bg); color:var(--amber);}
+  .cierre-stat .cierre-stat-icon.ic-primary{background:var(--primary-light); color:var(--primary);}
+  .cierre-stat-txt .val{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700; color:var(--ink); line-height:1.15;}
+  .cierre-stat-txt .lbl{font-size:11px; color:var(--ink-soft); font-weight:600; line-height:1.3; margin-top:1px;}
+  .cierre-stat-txt .lbl b{color:var(--ink); font-weight:700;}
+
+  .cierre-table-card{border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+  .cierre-table-head{
+    background:var(--primary-deep); color:#fff; font-size:12px; font-weight:700;
+    letter-spacing:.03em; text-transform:uppercase; padding:10px 14px;
+  }
+  .cierre-table-head.cierre-head-amber{background:var(--amber);}
+  .cierre-table-head.cierre-head-red{background:var(--red);}
+  .cierre-table-meta{font-size:11px; color:var(--ink-soft); padding:8px 14px 0; margin:0;}
+  table.cierre-table{width:100%; border-collapse:collapse; font-size:12px;}
+  table.cierre-table thead th{
+    position:static; background:var(--primary-light); color:var(--ink-soft); text-align:left;
+    padding:8px 10px; font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.02em; cursor:default;
+  }
+  table.cierre-table thead th:hover{background:var(--primary-light);}
+  table.cierre-table tbody td{padding:7px 10px; border-bottom:1px solid var(--border); white-space:normal;}
+  table.cierre-table tbody tr:nth-child(even){background:#FAFBFC;}
+  table.cierre-table tfoot td{
+    position:static; background:var(--primary-deep); color:#fff; font-weight:700; padding:8px 10px; border-top:2px solid var(--accent);
+  }
+  td.cierre-num{font-family:'IBM Plex Mono',monospace; text-align:right; white-space:nowrap;}
+  .cierre-excedente{color:var(--green); font-weight:700;}
+
+  .cierre-esfuerzo-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; align-items:start;}
+  @media (max-width:900px){ .cierre-esfuerzo-grid{grid-template-columns:1fr;} }
+  .cierre-esfuerzo-col{border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+  table.cierre-mini-table{width:100%; border-collapse:collapse; font-size:11.5px;}
+  table.cierre-mini-table thead th{
+    background:var(--primary-light); color:var(--ink-soft); text-align:left; padding:6px 8px;
+    font-weight:600; font-size:10px; text-transform:uppercase; letter-spacing:.02em;
+  }
+  table.cierre-mini-table tbody td{padding:6px 8px; border-bottom:1px solid var(--border);}
+  table.cierre-mini-table tbody tr:nth-child(even){background:#FAFBFC;}
+  table.cierre-mini-table td.cierre-pct-bad{color:var(--red); font-weight:700; font-family:'IBM Plex Mono',monospace; text-align:right;}
+  table.cierre-mini-table td.cierre-pct-mid{color:var(--amber); font-weight:700; font-family:'IBM Plex Mono',monospace; text-align:right;}
+
+  .cierre-bars-card{border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+  .cierre-bar-row{display:flex; align-items:center; gap:10px; padding:7px 14px;}
+  .cierre-bar-zone{width:120px; flex:0 0 auto; font-size:12px; font-weight:700; color:var(--ink);}
+  .cierre-bar-track{flex:1 1 auto; background:var(--primary-light); border-radius:5px; height:17px; overflow:hidden;}
+  .cierre-bar-fill{height:100%; border-radius:5px; display:flex; align-items:center;}
+  .cierre-bar-count{width:62px; flex:0 0 auto; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:700; color:var(--ink-soft);}
   #cobroTable td.num-cell, #cobroGCTable td.num-cell{font-family:'IBM Plex Mono',monospace; text-align:right;}
   #cobroTable th:last-child, #cobroGCTable th:last-child,
   #cobroTable td:last-child, #cobroGCTable td:last-child{
@@ -1177,6 +1245,47 @@
           <thead><tr><th>#</th><th>Oficina</th><th>Zona</th><th>Meta (MM RD$)</th><th>Recuperación (MM RD$)</th><th>% Avance</th></tr></thead>
           <tbody id="rankGoalsBody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div>
+          <h3>Cierre de Mes — Reporte de Ranking para Correo</h3>
+          <p class="sub" id="cierreSub">—</p>
+        </div>
+        <button id="cierreDownloadBtn" class="download-hd-btn" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Descarga este reporte como imagen en alta definición, lista para pegar en el correo de cierre de mes">⬇ Descargar reporte (HD)</button>
+      </div>
+      <div id="cierreCaptureArea" style="margin-top:14px;">
+        <div class="cierre-stat-grid" id="cierreStatGrid"></div>
+
+        <div class="cierre-table-card" style="margin-top:16px;">
+          <div class="cierre-table-head" id="cierreCumplidaTitle">OFICINAS CON META CUMPLIDA (&ge;100%)</div>
+          <p class="cierre-table-meta" id="cierreCumplidaMeta"></p>
+          <div class="table-scroll" style="max-height:none;">
+            <table class="cierre-table">
+              <thead>
+                <tr>
+                  <th>#</th><th>Oficina</th><th>Zona</th>
+                  <th style="text-align:right;">Meta MM RD$</th>
+                  <th style="text-align:right;">Rec. MM RD$</th>
+                  <th style="text-align:right;">Excedente</th>
+                  <th style="text-align:right;">%</th>
+                  <th>Encargado</th>
+                </tr>
+              </thead>
+              <tbody id="cierreCumplidaBody"></tbody>
+              <tfoot id="cierreCumplidaFoot"></tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="cierre-esfuerzo-grid" id="cierreEsfuerzoGrid" style="margin-top:16px;"></div>
+
+        <div class="cierre-bars-card" style="margin-top:16px;">
+          <div class="cierre-table-head" id="cierreBarsTitle">ZONAS CON MÁS OFICINAS A MEJORAR</div>
+          <div id="cierreBarsBody" style="padding:12px 4px;"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -3147,6 +3256,164 @@ PAGE 3 — SEG META POLÍGONO 2026
     )).join('') : '<tr><td colspan="6" class="goal-empty">Ninguna oficina ha alcanzado su meta todavía en esta selección.</td></tr>';
   }
 
+  /* ----- Cierre de Mes: reporte listo para pegar en el correo ----- */
+  const MESES_ES_CIERRE = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  function nextMonthLabel(){
+    const low = (CORTE || '').toLowerCase();
+    const idx = MESES_ES_CIERRE.findIndex(m => low.includes(m));
+    if(idx === -1) return 'el próximo mes';
+    return MESES_ES_CIERRE[(idx + 1) % 12];
+  }
+
+  function renderCierre(){
+    const NEXT_MONTH = nextMonthLabel();
+    document.getElementById('cierreSub').textContent =
+      'Corte: ' + CORTE + ' · listo para descargar y pegar en el correo de cierre de mes';
+
+    const withAvance = OFFICES.filter(o => o.avance !== null && o.avance !== undefined);
+    const cumplidas = withAvance.filter(o => o.avance >= 1).sort((a,b) => b.avance - a.avance);
+    const buenEsfuerzo = withAvance.filter(o => o.avance >= 0.70 && o.avance < 1);
+    const mejorar = withAvance.filter(o => o.avance < 0.70);
+
+    function groupByZone(list){
+      const out = [];
+      ZONE_ORDER.forEach(z => {
+        list.filter(o => o.zona === z).sort((a,b) => b.avance - a.avance).forEach(o => out.push(o));
+      });
+      list.filter(o => !ZONE_ORDER.includes(o.zona)).forEach(o => out.push(o));
+      return out;
+    }
+    const buenEsfuerzoOrdered = groupByZone(buenEsfuerzo);
+    const mejorarOrdered = groupByZone(mejorar);
+
+    // ----- tarjetas resumen -----
+    const best = cumplidas[0];
+    const zoneCounts = {};
+    cumplidas.forEach(o => { zoneCounts[o.zona] = (zoneCounts[o.zona] || 0) + 1; });
+    let bestZoneDestacada = null, bestZoneDestacadaCount = 0;
+    Object.keys(zoneCounts).forEach(z => {
+      if(zoneCounts[z] > bestZoneDestacadaCount){ bestZoneDestacadaCount = zoneCounts[z]; bestZoneDestacada = z; }
+    });
+
+    let bestZoneTotal = null;
+    ZONE_ORDER.forEach(z => {
+      if(!TOTALS[z]) return;
+      if(bestZoneTotal === null || TOTALS[z].avance > TOTALS[bestZoneTotal].avance) bestZoneTotal = z;
+    });
+    const bestZoneTotalMeta = bestZoneTotal ? TOTALS[bestZoneTotal] : null;
+    const bestZoneTotalOk = bestZoneTotalMeta && bestZoneTotalMeta.avance >= 1;
+
+    document.getElementById('cierreStatGrid').innerHTML =
+      '<div class="cierre-stat">' +
+        '<div class="cierre-stat-icon ic-green">&#10003;</div>' +
+        '<div class="cierre-stat-txt"><div class="val">' + cumplidas.length + '</div><div class="lbl">oficinas con meta cumplida</div></div>' +
+      '</div>' +
+      '<div class="cierre-stat">' +
+        '<div class="cierre-stat-icon ic-amber">&#9733;</div>' +
+        '<div class="cierre-stat-txt"><div class="lbl">Mejor desempeño:</div><div class="val" style="font-size:14px;">' +
+          (best ? best.oficina + ' <span style="color:var(--green);">(' + pct(best.avance,1) + ')</span>' : '—') +
+        '</div></div>' +
+      '</div>' +
+      '<div class="cierre-stat">' +
+        '<div class="cierre-stat-icon ic-primary">&#128205;</div>' +
+        '<div class="cierre-stat-txt"><div class="lbl">Más oficinas destacadas:</div><div class="val" style="font-size:14px;">' +
+          (bestZoneDestacada ? ZONE_LABEL[bestZoneDestacada] + ' (' + bestZoneDestacadaCount + ')' : '—') +
+        '</div></div>' +
+      '</div>' +
+      '<div class="cierre-stat' + (bestZoneTotalOk ? ' highlight' : '') + '">' +
+        '<div class="cierre-stat-icon ic-green">&#9733;</div>' +
+        '<div class="cierre-stat-txt"><div class="lbl">Zona con meta total cumplida:</div><div class="val" style="font-size:14px;">' +
+          (bestZoneTotal ? ZONE_LABEL[bestZoneTotal] + ' (' + pct(bestZoneTotalMeta.avance,2) + ')' : '—') +
+        '</div></div>' +
+      '</div>';
+
+    // ----- tabla "oficinas con meta cumplida" -----
+    document.getElementById('cierreCumplidaMeta').textContent =
+      'Corte: ' + CORTE + ' | Ordenado por % Avance | ' + cumplidas.length + ' oficinas ≥ 100%';
+    let sumMeta = 0, sumRec = 0;
+    document.getElementById('cierreCumplidaBody').innerHTML = cumplidas.length ? cumplidas.map((o, i) => {
+      const exced = o.recuperacion - o.meta;
+      sumMeta += o.meta; sumRec += o.recuperacion;
+      return '<tr>' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td>' + o.oficina + '</td>' +
+        '<td><span class="zone-tag">' + ZONE_LABEL[o.zona] + '</span></td>' +
+        '<td class="cierre-num">' + money(o.meta) + '</td>' +
+        '<td class="cierre-num">' + money(o.recuperacion) + '</td>' +
+        '<td class="cierre-num cierre-excedente">+' + money(exced) + '</td>' +
+        '<td class="cierre-num" style="color:var(--green); font-weight:700;">' + pct(o.avance,1) + '</td>' +
+        '<td>' + (o.encargado || '—') + '</td>' +
+        '</tr>';
+    }).join('') : '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--ink-soft);">Ninguna oficina alcanzó su meta en este corte.</td></tr>';
+
+    const cFoot = document.getElementById('cierreCumplidaFoot');
+    if(cumplidas.length){
+      const sumExced = sumRec - sumMeta;
+      const sumPct = sumMeta > 0 ? sumRec / sumMeta : 0;
+      cFoot.innerHTML = '<tr>' +
+        '<td colspan="3">TOTAL</td>' +
+        '<td class="cierre-num">' + money(sumMeta) + '</td>' +
+        '<td class="cierre-num">' + money(sumRec) + '</td>' +
+        '<td class="cierre-num">+' + money(sumExced) + '</td>' +
+        '<td class="cierre-num">' + pct(sumPct,1) + '</td>' +
+        '<td></td>' +
+        '</tr>';
+    } else {
+      cFoot.innerHTML = '';
+    }
+
+    // ----- buen esfuerzo / mejorar (3 columnas) -----
+    function miniRows(list){
+      return list.map(o => '<tr>' +
+        '<td>' + o.oficina + '</td>' +
+        '<td><span class="zone-tag">' + ZONE_LABEL[o.zona] + '</span></td>' +
+        '<td class="' + (o.avance < 0.70 ? 'cierre-pct-bad' : 'cierre-pct-mid') + '">' + pct(o.avance,1) + '</td>' +
+        '</tr>').join('');
+    }
+    function miniTable(headClass, headLabel, rows){
+      return '<div class="cierre-esfuerzo-col">' +
+        '<div class="cierre-table-head ' + headClass + '" style="font-size:11px;">' + headLabel + '</div>' +
+        '<div class="table-scroll" style="max-height:none;">' +
+        '<table class="cierre-mini-table"><thead><tr><th>Oficina</th><th>Zona</th><th style="text-align:right;">%</th></tr></thead>' +
+        '<tbody>' + (rows || '<tr><td colspan="3" style="text-align:center;padding:14px;color:var(--ink-soft);">Sin oficinas en este rango.</td></tr>') + '</tbody></table>' +
+        '</div></div>';
+    }
+
+    const half = Math.ceil(mejorarOrdered.length / 2);
+    const mejorarCol1 = mejorarOrdered.slice(0, half);
+    const mejorarCol2 = mejorarOrdered.slice(half);
+
+    document.getElementById('cierreEsfuerzoGrid').innerHTML =
+      miniTable('cierre-head-amber', 'BUEN ESFUERZO (70-99%): ' + buenEsfuerzoOrdered.length + ' oficinas', miniRows(buenEsfuerzoOrdered)) +
+      miniTable('cierre-head-red', 'MEJORAR EN ' + NEXT_MONTH.toUpperCase() + ' (<70%): ' + mejorarOrdered.length + ' oficinas', miniRows(mejorarCol1)) +
+      miniTable('cierre-head-red', 'MEJORAR EN ' + NEXT_MONTH.toUpperCase() + ' (cont.)', miniRows(mejorarCol2));
+
+    // ----- barras por zona -----
+    document.getElementById('cierreBarsTitle').textContent =
+      'ZONAS CON MÁS OFICINAS A MEJORAR EN ' + NEXT_MONTH.toUpperCase() + ' (<70%)';
+
+    const zoneBars = ZONE_ORDER.map(z => {
+      const total = OFFICES.filter(o => o.zona === z).length;
+      const below = OFFICES.filter(o => o.zona === z && o.avance !== null && o.avance !== undefined && o.avance < 0.70).length;
+      return { z, total, below, ratio: total > 0 ? below / total : 0 };
+    }).filter(r => r.below > 0).sort((a,b) => b.below - a.below);
+
+    const barsBody = document.getElementById('cierreBarsBody');
+    if(!zoneBars.length){
+      barsBody.innerHTML = '<p style="text-align:center;padding:14px;color:var(--ink-soft);font-size:12px;">Ninguna zona tiene oficinas por debajo del 70% en este corte.</p>';
+    } else {
+      barsBody.innerHTML = zoneBars.map(r => {
+        const color = r.ratio >= 0.5 ? 'var(--red)' : 'var(--amber)';
+        const widthPct = Math.max(6, Math.round(r.ratio * 100));
+        return '<div class="cierre-bar-row">' +
+          '<div class="cierre-bar-zone">' + ZONE_LABEL[r.z] + '</div>' +
+          '<div class="cierre-bar-track"><div class="cierre-bar-fill" style="width:' + widthPct + '%; background:' + color + ';"></div></div>' +
+          '<div class="cierre-bar-count">' + r.below + ' de ' + r.total + '</div>' +
+          '</div>';
+      }).join('');
+    }
+  }
+
   window.resetRankingPage = function(){
     activeZone = 'ALL';
     [...zoneFilterEl.children].forEach(c => c.classList.toggle('active', c.dataset.zone === 'ALL'));
@@ -3164,6 +3431,7 @@ PAGE 3 — SEG META POLÍGONO 2026
   renderTable();
   renderAlerts();
   renderGoals();
+  renderCierre();
 })();
 
 /* ===== Página: Cobro Online (vista de prueba) ===== */
@@ -3630,6 +3898,7 @@ function setupImageDownloadButton(btnId, areaId, filenamePrefix){
 setupImageDownloadButton('cobroDownloadBtn', 'cobroCaptureArea', 'Cobro_Online');
 setupImageDownloadButton('segDownloadBtn', 'segCaptureArea', 'Seg_Meta');
 setupImageDownloadButton('rankDownloadBtn', 'rankCaptureArea', 'Ranking');
+setupImageDownloadButton('cierreDownloadBtn', 'cierreCaptureArea', 'Cierre_Mes_Ranking');
 setupImageDownloadButton('empDownloadBtn', 'empCaptureArea', 'Cobrabilidad_Movil_Empresa');
 setupImageDownloadButton('poliDownloadBtn', 'poliCaptureArea', 'Cobrabilidad_Movil_Oficinas');
 
