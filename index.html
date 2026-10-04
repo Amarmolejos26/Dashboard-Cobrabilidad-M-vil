@@ -580,8 +580,16 @@
     display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px;
   }
   .carousel-track{
+    /* "justify-content:center" aquí es lo que provocaba el corte en laptop: con overflow-x:auto,
+       el navegador centra todo el contenido y la mitad izquierda que "sobra" queda fuera del
+       scroll (no se puede desplazar a una posición negativa), así que la primera tarjeta
+       aparecía recortada en pantallas más angostas que la suma de las 6 tarjetas. Alineado al
+       inicio evita el recorte y sigue viéndose centrado en pantallas anchas donde todo cabe. */
     display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth;
-    padding:4px 2px 10px; flex:0 1 auto; justify-content:center; margin:0 auto; max-width:100%;
+    padding:4px 2px 10px; flex:0 1 auto; justify-content:flex-start; margin:0 auto; max-width:100%;
+  }
+  @media (min-width:1500px){
+    .carousel-track{ justify-content:center; }
   }
   .carousel-track::-webkit-scrollbar{height:6px;}
   .rank-card{
