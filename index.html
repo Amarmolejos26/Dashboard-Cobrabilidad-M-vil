@@ -360,6 +360,7 @@
   #cobroTable, #cobroGCTable{table-layout:fixed;}
   #cobroTable{width:516px;}
   #cobroGCTable{width:596px;}
+  .g-cobro-detail.single-card{grid-template-columns:max-content;}
   .g-cobro-detail{display:grid; grid-template-columns:max-content max-content; gap:24px; justify-content:center;}
   @media (max-width: 900px){
     .g-cobro-detail{grid-template-columns:1fr;}
@@ -1354,7 +1355,7 @@
       </div>
     </section>
 
-    <div class="grid g-cobro-detail" style="margin-top:18px; align-items:start;">
+    <div class="grid g-cobro-detail" id="cobroDetailGrid" style="margin-top:18px; align-items:start;">
       <div class="card" style="width:fit-content;">
         <h3>Cobro por Zona</h3>
         <div class="table-scroll" style="max-height:none;">
@@ -1365,7 +1366,7 @@
         </div>
       </div>
 
-      <div class="card" style="width:fit-content;">
+      <div class="card" id="cobroGCCard" style="width:fit-content;">
         <h3>Cobro Grandes Clientes</h3>
         <div class="table-scroll" style="max-height:none;">
           <table class="goal-table" id="cobroGCTable">
@@ -3848,6 +3849,14 @@ PAGE 3 — SEG META POLÍGONO 2026
   }
 
   function renderZonaTable(){
+    // Con una zona seleccionada solo se muestra su tabla; Grandes Clientes aplica a Total Empresa.
+    const gcCard = document.getElementById('cobroGCCard');
+    const detailGrid = document.getElementById('cobroDetailGrid');
+    if(gcCard){
+      const showGC = activeZone === 'ALL';
+      gcCard.style.display = showGC ? '' : 'none';
+      if(detailGrid) detailGrid.classList.toggle('single-card', !showGC);
+    }
     let zonesToShow = activeZone === 'ALL' ? filterZones : [activeZone];
 
     if(activeZone === 'ALL'){
