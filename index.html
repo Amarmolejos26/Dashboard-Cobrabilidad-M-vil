@@ -1251,35 +1251,6 @@
       </div>
     </div>
 
-    <div class="card success-card">
-      <div class="success-head">
-        <div class="success-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M8 21h8M12 17v4M7 4h10v3a5 5 0 01-10 0V4z"/><path d="M7 5H4a1 1 0 00-1 1c0 2.5 1.5 4 3.5 4M17 5h3a1 1 0 011 1c0 2.5-1.5 4-3.5 4"/></svg>
-        </div>
-        <div>
-          <h3>Oficinas que Cumplieron su Meta</h3>
-          <p class="sub" id="rankGoalsSub">Oficinas con avance de recuperación &ge; 100%</p>
-        </div>
-      </div>
-      <div class="goal-kpi-strip">
-        <div class="goal-kpi">
-          <div class="lbl">Oficinas que cumplieron</div>
-          <div class="val" id="rankGoalsCount">—</div>
-        </div>
-        <div class="goal-kpi">
-          <div class="lbl">Oficina con mejor desempeño</div>
-          <div class="val" id="rankGoalsBestName">—</div>
-          <div class="sub-val" id="rankGoalsBestPct">—</div>
-        </div>
-      </div>
-      <div class="table-scroll" style="max-height:none;">
-        <table class="goal-table">
-          <thead><tr><th>#</th><th>Oficina</th><th>Zona</th><th>Meta (MM RD$)</th><th>Recuperación (MM RD$)</th><th>% Avance</th></tr></thead>
-          <tbody id="rankGoalsBody"></tbody>
-        </table>
-      </div>
-    </div>
-
     <div class="card" style="margin-top:18px;">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
         <div>
@@ -3204,7 +3175,6 @@ PAGE 3 — SEG META POLÍGONO 2026
     [...zoneFilterEl.children].forEach(c => c.classList.toggle('active', c === chip));
     document.getElementById('rankTableZoneSelect').value = activeZone;
     renderTable();
-    renderGoals();
     highlightCarouselCard();
   });
 
@@ -3219,7 +3189,6 @@ PAGE 3 — SEG META POLÍGONO 2026
     activeZone = tableZoneSelect.value;
     [...zoneFilterEl.children].forEach(c => c.classList.toggle('active', c.dataset.zone === activeZone));
     renderTable();
-    renderGoals();
     highlightCarouselCard();
   });
 
@@ -3407,36 +3376,6 @@ PAGE 3 — SEG META POLÍGONO 2026
 
   document.getElementById('rankSearchInput').addEventListener('input', renderTable);
 
-  function renderGoals(){
-    let scope = OFFICES.slice();
-    if(activeZone !== 'ALL') scope = scope.filter(o => o.zona === activeZone);
-
-    document.getElementById('rankGoalsSub').textContent =
-      'Oficinas con avance de recuperación ≥ 100%' + (activeZone !== 'ALL' ? ' · ' + ZONE_LABEL[activeZone] : '') + ' · corte ' + CORTE;
-
-    const cumplidas = scope
-      .filter(o => o.avance !== null && o.avance !== undefined && o.avance >= 1)
-      .sort((a,b) => b.avance - a.avance);
-
-    document.getElementById('rankGoalsCount').textContent = cumplidas.length + ' de ' + scope.length;
-
-    const best = cumplidas[0];
-    document.getElementById('rankGoalsBestName').textContent = best ? best.oficina : '—';
-    document.getElementById('rankGoalsBestPct').textContent = best ? pct(best.avance) : '—';
-
-    const body = document.getElementById('rankGoalsBody');
-    body.innerHTML = cumplidas.length ? cumplidas.map((o, i) => (
-      '<tr>' +
-      '<td><span class="alert-rank" style="background:var(--green-bg); color:var(--green);">' + (i+1) + '</span></td>' +
-      '<td>' + o.oficina + '</td>' +
-      '<td><span class="zone-tag">' + ZONE_LABEL[o.zona] + '</span></td>' +
-      '<td class="num-cell">' + money(o.meta) + '</td>' +
-      '<td class="num-cell">' + money(o.recuperacion) + '</td>' +
-      '<td><span class="pct-badge pct-good">' + pct(o.avance) + '</span></td>' +
-      '</tr>'
-    )).join('') : '<tr><td colspan="6" class="goal-empty">Ninguna oficina ha alcanzado su meta todavía en esta selección.</td></tr>';
-  }
-
   /* ----- Cierre de Mes: reporte listo para pegar en el correo ----- */
   const MESES_ES_CIERRE = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   function nextMonthLabel(){
@@ -3607,7 +3546,6 @@ PAGE 3 — SEG META POLÍGONO 2026
     renderCarousel();
     renderTable();
     renderAlerts();
-    renderGoals();
     renderCierre();
     highlightCarouselCard();
   }
@@ -3630,7 +3568,6 @@ PAGE 3 — SEG META POLÍGONO 2026
     document.getElementById('rankSearchInput').value = '';
     track.scrollTo({ left: 0 });
     renderTable();
-    renderGoals();
     highlightCarouselCard();
   };
 
@@ -3638,7 +3575,6 @@ PAGE 3 — SEG META POLÍGONO 2026
   renderCarousel();
   renderTable();
   renderAlerts();
-  renderGoals();
   renderCierre();
 })();
 
